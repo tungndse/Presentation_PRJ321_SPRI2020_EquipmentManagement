@@ -1,0 +1,20 @@
+ private static final String ERROR = "error.jsp";
+
+         protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+             processRequest(request, response);
+         }
+
+         private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+             String url = ERROR;
+             try {
+
+             } catch (Exception e) {
+                 log("Error at " + this.getServletName() + ": " + e.getMessage());
+             } finally {
+                 request.getRequestDispatcher(url).forward(request, response);
+             }
+         }
+
+         protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+             processRequest(request, response);
+         }

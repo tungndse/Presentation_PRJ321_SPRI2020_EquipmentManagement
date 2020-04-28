@@ -1,0 +1,299 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%--
+  Created by IntelliJ IDEA.
+  User: tungnd
+  Date: 3/17/20
+  Time: 6:24 PM
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>Equipment-Details</title>
+</head>
+<body>
+<!-- DECLARATION ---------->
+
+<c:set var="equipment" value="${requestScope.EQUIPMENT}"/>
+<c:set var="roomOptionList" value="${requestScope.ROOM_LIST}"/>
+
+<hr>
+<h1 style="text-align: center">Equipment Details</h1>
+<hr>
+<!--- DETAILS OF EQUIPMENTS ---->
+<table>
+    <tr>
+        <!-- Details Panel ----------------------------->
+        <td>
+            <table>
+                <tr>
+                    <td colspan="4"><h2>Details</h2></td>
+                </tr>
+                <tr>
+                    <th style="text-align: left">Id</th>
+                    <td>${equipment.id}</td>
+                    <th style="text-align: left">Name</th>
+                    <td>${equipment.name}</td>
+                </tr>
+                <tr>
+                    <th style="text-align: left">Type</th>
+                    <td>${equipment.type.name}</td>
+                    <th style="text-align: left">Warranty</th>
+                    <td>${equipment.warranty}</td>
+                </tr>
+                <tr>
+                    <th style="text-align: left">Repaired</th>
+                    <td>${equipment.timeRepaired} time(s)</td>
+                    <th style="text-align: left">Date Bought</th>
+                    <td><fmt:formatDate value="${equipment.dateBought}" pattern="dd/MM/yyyy"/></td>
+                </tr>
+                <tr>
+                    <th style="text-align: left">Status</th>
+                    <td>
+                        <c:if test="${equipment.status == 0}">
+                            <span style="color: red">Broken</span>
+                        </c:if>
+                        <c:if test="${equipment.status == 1}">
+                            <span style="color: chartreuse;">Good</span>
+                        </c:if>
+                    </td>
+                </tr>
+                <tr>
+                    <th colspan="4" style="text-align: left">Description</th>
+                </tr>
+                <tr>
+                    <td colspan="4">${equipment.description}</td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <c:url var="updateLink" value="MainController">
+                            <c:param name="action" value="ForwardEquipmentUpdate"/>
+
+                            <c:param name="equipmentId" value="${equipment.id}"/>
+                            <c:param name="equipmentName" value="${equipment.name}"/>
+                            <c:param name="dateBought" value="${equipment.dateBought}"/>
+                            <c:param name="warranty" value="${equipment.warranty}"/>
+                            <c:param name="description" value="${equipment.description}"/>
+                            <c:param name="typeName" value="${equipment.type.name}"/>
+
+                            <!-- SEARCH PARAMS ----->
+                            <c:param name="equipmentStatusSelect" value="${param.equipmentStatusSelect}"/>
+                            <c:param name="warrantySort" value="${param.warrantySort}"/>
+                            <c:param name="dateBoughtSort" value="${param.dateBoughtSort}"/>
+                            <c:param name="timeRepairedSort" value="${param.timeRepairedSort}"/>
+                        </c:url>
+                        <a href="${updateLink}">
+                            <button style="width: 100%">Edit Details</button>
+                        </a>
+                    </td>
+                    <td colspan="2">
+                        <c:url var="deleteLink" value="MainController">
+                            <c:param name="action" value="DeleteEquipment"/>
+                            <c:param name="equipmentId" value="${equipment.id}"/>
+
+                            <!-- SEARCH PARAMS ----->
+                            <c:param name="equipmentStatusSelect" value="${param.equipmentStatusSelect}"/>
+                            <c:param name="warrantySort" value="${param.warrantySort}"/>
+                            <c:param name="dateBoughtSort" value="${param.dateBoughtSort}"/>
+                            <c:param name="timeRepairedSort" value="${param.timeRepairedSort}"/>
+                        </c:url>
+                        <a href="${deleteLink}">
+                            <button style="width: 100%">Delete</button>
+                        </a>
+                    </td>
+                </tr>
+                <c:if test="${not empty requestScope.DELETE_ERROR}">
+                    <tr>
+                        <td style="background-color: red">${requestScope.DELETE_ERROR}</td>
+                    </tr>
+                </c:if>
+                <tr>
+                    <!-- Active Request cell -->
+                    <td colspan="4" style="text-align: left">
+                        <c:set var="request" value="${equipment.currentRequest}"/>
+                        <c:if test="${not empty request}">
+                            <c:url var="viewRequestLink" value="MainController">
+                                <c:param name="action" value="ViewRequestAsAdmin"/>
+                                <c:param name="requestId" value="${request.id}"/>
+                                <c:param name="equipmentId" value="${equipment.id}"/>
+                                <!-- SEARCH PARAM ON EQUIPMENT MNG PAGE --->
+                                <c:param name="equipmentStatusSelect" value="${param.equipmentStatusSelect}"/>
+                                <c:param name="warrantySort" value="${param.warrantySort}"/>
+                                <c:param name="dateBoughtSort" value="${param.dateBoughtSort}"/>
+                                <c:param name="timeRepairedSort" value="${param.timeRepairedSort}"/>
+                            </c:url>
+                            <span style="color: darkcyan;">
+                                <c:if test="${request.requestStatus == 0}">
+                                    Equipment requested for repairing by ${request.requester.username}
+                                </c:if>
+                                <c:if test="${request.requestStatus == 1}">
+                                    Equipment is being worked on by ${request.executor.username}
+                                </c:if>
+                                <hr>
+                            </span>
+                            <a href="${viewRequestLink}">View Request</a>
+                        </c:if>
+                        <c:if test="${empty request}">
+                            <span style="color:rgba(0,0,0,0.24);">
+                                No request made on this equipment
+                            </span>
+                        </c:if>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <!-- Image Panel ----------------------------->
+        <td style="width: 70%"><!-- $pageContext.request.contextPath -->
+            <%--            <img src="${equipment.imagePath}" alt="No image yet"/>--%>
+            <img src="<c:url value='${equipment.imagePath}'/>" alt="No image yet" width="500" height="333"/>
+            <form action="EquipmentImageController" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="equipmentId" value="${equipment.id}"/>
+                <input type="file" name="file" size="50"/>
+                <input type="submit" value="Upload Image"/>
+            </form>
+        </td>
+    </tr>
+</table>
+<hr>
+
+<!-- LOCATION HISTORY ----->
+<c:set var="locationEntries" value="${equipment.locationEntries}"/>
+<table>
+    <c:if test="${not empty equipment.locationEntries}">
+        <h2>Location History</h2>
+        <tr>
+            <th>Time Transferred</th>
+            <th>To Room</th>
+            <th>Transferred By</th>
+            <th>Reason</th>
+        </tr>
+
+        <c:forEach var="entry" items="${locationEntries}">
+            <tr>
+                <td><fmt:formatDate value="${entry.fromDate}" pattern="HH:mm EEE, dd/MM/yyyy"/></td>
+                <td>${entry.room.name}</td>
+                <td>${entry.byUserId}</td>
+                <td>${entry.reason}</td>
+            </tr>
+        </c:forEach>
+    </c:if>
+
+    <tr>
+        <td colspan="4">
+            <hr>
+        </td>
+    </tr>
+
+    <tr>
+        <c:if test="${not empty equipment.currentRoom}">
+            <th style="text-align: left">Current Location</th>
+            <td colspan="2">${equipment.currentRoom.name}</td>
+        </c:if>
+        <c:if test="${empty equipment.currentRoom}">
+            <td colspan="2">Not assigned</td>
+        </c:if>
+
+        <td colspan="1">
+            <form id="transferForm" action="MainController" method="post" style="margin-bottom: 0">
+                <input type="hidden" name="equipmentId" value="${equipment.id}"/>
+                <input type="hidden" name="equipmentName" value="${equipment.name}"/>
+                <input type="hidden" name="equipmentTypeName" value="${equipment.type.name}"/>
+                <input type="hidden" name="equipmentOldRoom" value="${equipment.currentRoom.name}"/>
+                <!-- SEARCH PARAMS ----->
+                <input type="hidden" name="equipmentStatusSelect" value="${param.equipmentStatusSelect}"/>
+                <input type="hidden" name="warrantySort" value="${param.warrantySort}"/>
+                <input type="hidden" name="dateBoughtSort" value="${param.dateBoughtSort}"/>
+                <input type="hidden" name="timeRepairedSort" value="${param.timeRepairedSort}"/>
+            </form>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="4">
+            <button form="transferForm" name="action" value="ForwardEquipmentTransfer" style="width: 100%">
+                <c:if test="${empty equipment.locationEntries}">
+                    Assign Location
+                </c:if>
+                <c:if test="${not empty equipment.locationEntries}">
+                    Relocate
+                </c:if>
+            </button>
+        </td>
+    </tr>
+</table>
+<hr>
+
+<!-- REPAIR HISTORY ----------->
+<c:if test="${not empty equipment.reportList}">
+    <h2>Repair History</h2>
+    <table>
+        <tr>
+            <th>No</th>
+            <th>Requester</th>
+            <th>Time Requested</th>
+            <th>Handled By</th>
+            <th>Time Began</th>
+            <th>Time Done</th>
+            <th>Result</th>
+        </tr>
+        <c:forEach var="report" items="${equipment.reportList}" varStatus="counter">
+            <tr>
+                <td>${counter.count}</td>
+                <td>${report.requester.username}</td>
+                <td><fmt:formatDate value="${report.timeRequested}" pattern="HH:mm dd-MM-yyyy"/></td>
+                <td>${report.executor.username}</td>
+                <td><fmt:formatDate value="${report.timeBegin}" pattern="HH:mm dd-MM-yyyy"/></td>
+                <td><fmt:formatDate value="${report.timeDone}" pattern="HH:mm dd-MM-yyyy"/></td>
+                <td>${report.success ? 'Successful' : 'Failed'}</td>
+                <td>
+                    <c:url var="reportDetailsLink" value="MainController">
+                        <c:param name="action" value="ViewReport"/>
+                        <!-- DETAILS PARAMS --------------->
+                        <c:param name="equipmentId" value="${equipment.id}"/>
+                        <c:param name="equipmentName" value="${equipment.name}"/>
+                        <c:param name="equipmentTypeName" value="${equipment.type.name}"/>
+
+                        <c:param name="requesterId" value="${report.requester.username}"/>
+                        <c:param name="requesterGivenName" value="${report.requester.givenName}"/>
+                        <c:param name="requesterLastName" value="${report.requester.lastName}"/>
+
+                        <c:param name="executorUsername" value="${report.executor.username}"/>
+                        <c:param name="executorGivenName" value="${report.executor.givenName}"/>
+                        <c:param name="executorLastName" value="${report.executor.lastName}"/>
+
+                        <c:param name="requestDescription" value="${report.requestDescription}"/>
+                        <c:param name="repairDiary" value="${report.repairDiary}"/>
+                        <c:param name="timeRequest" value="${report.timeRequested}"/>
+                        <c:param name="timeBegin" value="${report.timeBegin}"/>
+                        <c:param name="timeDone" value="${report.timeDone}"/>
+                        <c:param name="reportResult" value="${report.success}"/>
+
+                        <!-- SEARCH PARAM ON EQUIPMENT MNG PAGE --->
+                        <c:param name="equipmentStatusSelect" value="${param.equipmentStatusSelect}"/>
+                        <c:param name="warrantySort" value="${param.warrantySort}"/>
+                        <c:param name="dateBoughtSort" value="${param.dateBoughtSort}"/>
+                        <c:param name="timeRepairedSort" value="${param.timeRepairedSort}"/>
+                    </c:url>
+                    <a href="${reportDetailsLink}">
+                        <button>Read Report</button>
+                    </a>
+                </td>
+            </tr>
+        </c:forEach>
+    </table>
+</c:if>
+<hr>
+
+<c:url var="equipmentMngLink" value="MainController">
+    <c:param name="action" value="SearchEquipments"/>
+    <!-- SEARCH PARAM ON EQUIPMENT MNG PAGE --->
+    <c:param name="equipmentStatusSelect" value="${param.equipmentStatusSelect}"/>
+    <c:param name="warrantySort" value="${param.warrantySort}"/>
+    <c:param name="dateBoughtSort" value="${param.dateBoughtSort}"/>
+    <c:param name="timeRepairedSort" value="${param.timeRepairedSort}"/>
+</c:url>
+
+<a href="${equipmentMngLink}">Back to equipment management page</a>
+
+</body>
+</html>
